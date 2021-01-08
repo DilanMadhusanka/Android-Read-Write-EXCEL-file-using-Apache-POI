@@ -9,9 +9,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -27,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -57,9 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.writeExcel:
                 saveExcelFile(this,"myExcel.xls");
                 break;
-//            case R.id.readExcel:
-//                readExcelFile(this,"myExcel.xls");
-//                break;
+            case R.id.readExcel:
+                readExcelFile(this,"myExcel.xls");
+                break;
         }
     }
 
@@ -198,6 +203,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         return success;
+    }
+
+    private static void readExcelFile(Context context, String filename) {
+
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly())
+        {
+            Log.w("FileUtils", "Storage not available or read only");
+            return;
+        }
+
+        try{
+            // Creating Input Stream
+            File file = new File(context.getExternalFilesDir(null), filename);
+            FileInputStream myInput = new FileInputStream(file);
+
+            // Create a POIFSFileSystem object
+            POIFSFileSystem myFileSystem = new POIFSFileSystem(myInput);
+
+            // Create a workbook using the File System
+            HSSFWorkbook myWorkBook = new HSSFWorkbook(myFileSystem);
+
+            // Get the first sheet from workbook
+            HSSFSheet mySheet = myWorkBook.getSheetAt(0);
+
+            /** We now need something to iterate through the cells.**/
+            Iterator<Row> rowIter = mySheet.rowIterator();
+
+            while(rowIter.hasNext()){
+                HSSFRow myRow = (HSSFRow) rowIter.next();
+                Iterator<Cell> cellIter = myRow.cellIterator();
+                while(cellIter.hasNext()){
+                    HSSFCell myCell = (HSSFCell) cellIter.next();
+                    Log.w("FileUtils", "Cell Value: " +  myCell.toString());
+                    Toast.makeText(context, "cell Value: " + myCell.toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }catch (Exception e){e.printStackTrace(); }
+
+        return;
     }
 
     public static boolean isExternalStorageReadOnly() {
