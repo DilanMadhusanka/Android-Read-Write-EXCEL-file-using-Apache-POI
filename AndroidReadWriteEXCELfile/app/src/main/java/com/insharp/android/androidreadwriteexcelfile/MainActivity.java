@@ -18,6 +18,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -60,7 +61,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 readFile(this,"myFile.txt");
                 break;
             case R.id.writeExcel:
-                saveExcelFile(this,"myExcel.xls");
+                try {
+                    saveExcelFile(this,"myExcel.xls");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.readExcel:
                 readExcelFile(this,"myExcel.xls");
@@ -138,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return;
     }
 
-    private static boolean saveExcelFile(Context context, String fileName) {
+    private static boolean saveExcelFile(Context context, String fileName) throws java.io.IOException {
 
         // check if available and not read only
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
@@ -154,9 +159,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Cell c = null;
 
         //Cell style for header row
-//        CellStyle cs = wb.createCellStyle();
-//        cs.setFillForegroundColor(HSSFColor.LIME.index);
-//        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        CellStyle cs = wb.createCellStyle();
+        cs.setFillForegroundColor(HSSFColor.LIME.index);
+        cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
         //New Sheet
         Sheet sheet1 = null;
@@ -167,15 +172,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         c = row.createCell(0);
         c.setCellValue("Item Number");
-//        c.setCellStyle(cs);
+        c.setCellStyle(cs);
 
         c = row.createCell(1);
         c.setCellValue("Quantity");
-//        c.setCellStyle(cs);
+        c.setCellStyle(cs);
 
         c = row.createCell(2);
         c.setCellValue("Price");
-//        c.setCellStyle(cs);
+        c.setCellStyle(cs);
 
         sheet1.setColumnWidth(0, (15 * 500));
         sheet1.setColumnWidth(1, (15 * 500));
